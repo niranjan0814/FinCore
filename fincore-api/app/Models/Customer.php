@@ -4,8 +4,91 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+
 class Customer extends Model
 {
+    // Sri Lankan Location Constants
+    const COUNTRY = 'Sri Lanka';
+    
+    const PROVINCES = [
+        'Western',
+        'Central',
+        'Southern',
+        'Northern',
+        'Eastern',
+        'North Western',
+        'North Central',
+        'Uva',
+        'Sabaragamuwa',
+    ];
+    
+    const DISTRICTS = [
+        // Western Province
+        'Colombo',
+        'Gampaha',
+        'Kalutara',
+        // Central Province
+        'Kandy',
+        'Matale',
+        'Nuwara Eliya',
+        // Southern Province
+        'Galle',
+        'Matara',
+        'Hambantota',
+        // Northern Province
+        'Jaffna',
+        'Kilinochchi',
+        'Mannar',
+        'Vavuniya',
+        'Mullaitivu',
+        // Eastern Province
+        'Batticaloa',
+        'Ampara',
+        'Trincomalee',
+        // North Western Province
+        'Kurunegala',
+        'Puttalam',
+        // North Central Province
+        'Anuradhapura',
+        'Polonnaruwa',
+        // Uva Province
+        'Badulla',
+        'Monaragala',
+        // Sabaragamuwa Province
+        'Ratnapura',
+        'Kegalle',
+    ];
+    
+    const CITIES = [
+        'Colombo',
+        'Dehiwala-Mount Lavinia',
+        'Moratuwa',
+        'Negombo',
+        'Gampaha',
+        'Kalutara',
+        'Kandy',
+        'Matale',
+        'Nuwara Eliya',
+        'Galle',
+        'Matara',
+        'Hambantota',
+        'Jaffna',
+        'Kilinochchi',
+        'Mannar',
+        'Vavuniya',
+        'Batticaloa',
+        'Ampara',
+        'Trincomalee',
+        'Kurunegala',
+        'Puttalam',
+        'Anuradhapura',
+        'Polonnaruwa',
+        'Badulla',
+        'Monaragala',
+        'Ratnapura',
+        'Kegalle',
+    ];
+
     protected $fillable = [
         // Product / Location Details
         'location',
