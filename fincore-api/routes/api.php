@@ -37,12 +37,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/loan-products', [LoanProductController::class, 'index']);
         Route::get('/loan-products/filter', [LoanProductController::class, 'filter']);
         Route::get('/loan-products/{id}', [LoanProductController::class, 'show']);
-        Route::get('/loan-products/customer/{customer_id}', [LoanProductController::class, 'getByCustomerId']);
         Route::put('/loan-products/{id}', [LoanProductController::class, 'update']);
         Route::delete('/loan-products/{id}', [LoanProductController::class, 'destroy']);
-        Route::post('/loan-products/import', [LoanProductController::class, 'importCsv']);
-        Route::get('/loan-products/export/csv', [LoanProductController::class, 'exportCsv']);
-        Route::post('/loan-products/{id}/documents', [LoanProductController::class, 'uploadDocuments']);
 
         // Investment Product Routes (Field Officer can create and manage)
         Route::post('/investment-products', [InvestmentProductController::class, 'store']);
@@ -92,13 +88,6 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/admins', [\App\Http\Controllers\Api\AdminController::class, 'store']);
         Route::get('/admins', [\App\Http\Controllers\Api\AdminController::class, 'index']);
         Route::put('/admins/{id}', [\App\Http\Controllers\Api\AdminController::class, 'update']);
-
-         Route::get('/loan-products/pending', [LoanProductController::class, 'pending']);
-        Route::post('/loan-products/{id}/approve', [LoanProductController::class, 'approve']);
-        
-        // Loan Product Statistics
-        Route::get('/loan-products/stats/pending-count', [LoanProductController::class, 'pendingCount']);
-        Route::get('/loan-products/stats/approved-count', [LoanProductController::class, 'approvedCount']);
     });
 
     // Admin Routes - Second Approval
@@ -106,9 +95,6 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/staffs', [\App\Http\Controllers\Api\StaffController::class, 'store']);
         Route::get('/staffs', [\App\Http\Controllers\Api\StaffController::class, 'index']);
         Route::put('/staffs/{staff_id}', [\App\Http\Controllers\Api\StaffController::class, 'update']);
-        
-        // Loan Product Second Approval (Admin final approval)
-        Route::post('/loan-products/{id}/second-approval', [LoanProductController::class, 'secondApproval']);
        
     });
 });
