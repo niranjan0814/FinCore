@@ -96,6 +96,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Admin Routes - Second Approval
     // Admin Routes (only admin role can access)
+    // Admin Routes (only admin role can access)
+    // Admin Routes - Second Approval
     Route::middleware('is_admin')->group(function () {
         Route::post('/staffs', [\App\Http\Controllers\Api\StaffController::class, 'store']);
         Route::get('/staffs', [\App\Http\Controllers\Api\StaffController::class, 'index']);
