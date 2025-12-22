@@ -11,14 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('groups', function (Blueprint $table) {
+        Schema::create('investment_products', function (Blueprint $table) {
             $table->id();
-            $table->string('group_name');
-            
-            $table->foreignId('center_id')
-                  ->constrained('centers')
-                  ->cascadeOnDelete();
-            $table->json('customer_ids')->nullable();
+            $table->string('name');
+            $table->decimal('interest_rate', 5, 2); // e.g., 12.50%
+            $table->integer('age_limited')->nullable();
             $table->timestamps();
         });
     }
@@ -28,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('groups');
+        Schema::dropIfExists('investment_products');
     }
 };

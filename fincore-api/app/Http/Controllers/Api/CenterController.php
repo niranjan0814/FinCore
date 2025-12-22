@@ -42,6 +42,11 @@ class CenterController extends Controller
                 $query->where('location', 'LIKE', '%' . $request->location . '%');
             }
 
+            // Filter by status
+            if ($request->has('status')) {
+                $query->where('status', $request->status);
+            }
+
             $centers = $query->get();
 
             return response()->json([
@@ -66,12 +71,13 @@ class CenterController extends Controller
             $validated = $request->validate([
                 'CSU_id' => 'nullable|string|unique:centers,CSU_id',
                 'open_days' => 'nullable|array',
-                'branch_id' => 'required|exists:branches,id',
+                'branch_id' => 'required|exists:branches,branch_id',
                 'staff_id' => 'required|string|exists:staffs,staff_id',
                 'center_name' => 'required|string|max:255',
                 'location' => 'nullable|string|max:255',
                 'address' => 'nullable|string',
                 'group_count' => 'nullable|integer|min:0',
+                'status' => 'nullable|string|in:active,inactive',
             ]);
 
             $center = Center::create($validated);
@@ -144,6 +150,7 @@ class CenterController extends Controller
                 'location' => 'nullable|string|max:255',
                 'address' => 'nullable|string',
                 'group_count' => 'nullable|integer|min:0',
+                'status' => 'nullable|string|in:active,inactive',
             ]);
 
             $center->update($validated);
@@ -173,6 +180,44 @@ class CenterController extends Controller
             ], 500);
         }
     }
+
+    public function pending()
+{
+    $centers = Center::where('status', 'inactive')
+        ->with(['branch', 'staff'])
+        ->get();
+
+    return response()->json([
+        'status' => 'success',
+        'status_code' => 2000,
+        'message' => 'Center approval request fetched',
+        'data' => $centers
+    ], 200);
+}
+
+
+public function approve($id)
+{
+    $center = Center::findOrFail($id);
+
+    if ($center->status === 'active') {
+        return response()->json([
+            'status' => 'error',
+            'status_code' => 400,
+            'message' => 'Center is already active'
+        ], 400);
+    }
+
+    $center->update(['status' => 'active']);
+
+    return response()->json([
+        'status' => 'success',
+        'status_code' => 2000,
+        'message' => 'Center approved successfully',
+        'data' => $center
+    ], 200);
+}
+
 
     /**
      * Remove the specified center.

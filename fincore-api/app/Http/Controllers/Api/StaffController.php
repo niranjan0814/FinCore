@@ -28,6 +28,7 @@ class StaffController extends Controller
             'age' => 'required|integer',
             'profile_image' => 'required|string',
             'gender' => 'required|string',
+            'role' => 'nullable|string', // Optional role assignment
         ]);
 
         // Auto-generate Staff ID (ST + 4 digits)
@@ -69,8 +70,8 @@ class StaffController extends Controller
             $user = User::create([
                 'user_name' => $newStaffId, // staff_id becomes user_name
                 'email' => $validated['email_id'], // email_id becomes email
-                'password' => 'default123', // Default password, staff should change it
-                'role' => null, // Staff users have no role
+                'password' => $validated['nic'], // Default password, staff should change it
+                'role' => $validated['role'] ?? null, // Use provided role or null
                 'digital_signature' => Hash::make($newStaffId),
                 'is_active' => true,
             ]);
@@ -131,6 +132,7 @@ class StaffController extends Controller
             'basic_salary' => 'nullable|numeric',
             'branch_id' => 'nullable|integer',
             'center_id' => 'nullable|integer',
+            'role' => 'nullable|string', // Can update role later
         ]);
 
         DB::beginTransaction();
@@ -138,13 +140,16 @@ class StaffController extends Controller
             // Update staff
             $staff->update($validated);
 
-            // Update corresponding user if email changed
-            if (isset($validated['email_id'])) {
-                $user = User::where('user_name', $staff_id)->first();
-                if ($user) {
+            // Update corresponding user if email or role changed
+            $user = User::where('user_name', $staff_id)->first();
+            if ($user) {
+                if (isset($validated['email_id'])) {
                     $user->email = $validated['email_id'];
-                    $user->save();
                 }
+                if (isset($validated['role'])) {
+                    $user->role = $validated['role'];
+                }
+                $user->save();
             }
 
             DB::commit();
