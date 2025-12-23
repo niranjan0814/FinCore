@@ -10,14 +10,11 @@ interface BranchFormProps {
 }
 
 const defaultFormData: BranchFormData = {
-    name: '',
+    branch_id: '',
+    branch_name: '',
+    location: '',
     address: '',
-    city: '',
-    state: '',
-    pincode: '',
-    phone: '',
-    email: '',
-    manager: ''
+    staff_ids: []
 };
 
 export function BranchForm({ isOpen, onClose, onSave, initialData }: BranchFormProps) {
@@ -26,14 +23,11 @@ export function BranchForm({ isOpen, onClose, onSave, initialData }: BranchFormP
     useEffect(() => {
         if (initialData) {
             setFormData({
-                name: initialData.name,
-                address: initialData.address,
-                city: initialData.city,
-                state: initialData.state,
-                pincode: initialData.pincode,
-                phone: initialData.phone,
-                email: initialData.email,
-                manager: initialData.manager
+                branch_id: initialData.branch_id,
+                branch_name: initialData.branch_name,
+                location: initialData.location,
+                address: initialData.address || '',
+                staff_ids: initialData.staff_ids || []
             });
         } else {
             setFormData(defaultFormData);
@@ -61,12 +55,35 @@ export function BranchForm({ isOpen, onClose, onSave, initialData }: BranchFormP
 
                 <div className="p-6 space-y-4">
                     <div className="grid grid-cols-2 gap-4">
+                        <div className="col-span-1">
+                            <label className="block font-medium text-gray-900 mb-2 text-sm">Branch ID *</label>
+                            <input
+                                type="text"
+                                value={formData.branch_id}
+                                onChange={(e) => setFormData({ ...formData, branch_id: e.target.value })}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                                placeholder="e.g. BR001"
+                                disabled={!!initialData} // ID typically not editable after creation
+                            />
+                        </div>
+
+                        <div className="col-span-1">
+                            <label className="block font-medium text-gray-900 mb-2 text-sm">Location *</label>
+                            <input
+                                type="text"
+                                value={formData.location}
+                                onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                                placeholder="e.g. Colombo"
+                            />
+                        </div>
+
                         <div className="col-span-2">
                             <label className="block font-medium text-gray-900 mb-2 text-sm">Branch Name *</label>
                             <input
                                 type="text"
-                                value={formData.name}
-                                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                value={formData.branch_name}
+                                onChange={(e) => setFormData({ ...formData, branch_name: e.target.value })}
                                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                                 placeholder="Enter branch name"
                             />
@@ -77,75 +94,9 @@ export function BranchForm({ isOpen, onClose, onSave, initialData }: BranchFormP
                             <textarea
                                 value={formData.address}
                                 onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                                rows={2}
+                                rows={3}
                                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-sm"
-                                placeholder="Enter address"
-                            />
-                        </div>
-
-                        <div>
-                            <label className="block font-medium text-gray-900 mb-2 text-sm">City *</label>
-                            <input
-                                type="text"
-                                value={formData.city}
-                                onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-                                placeholder="Enter city"
-                            />
-                        </div>
-
-                        <div>
-                            <label className="block font-medium text-gray-900 mb-2 text-sm">Province *</label>
-                            <input
-                                type="text"
-                                value={formData.state}
-                                onChange={(e) => setFormData({ ...formData, state: e.target.value })}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-                                placeholder="Enter province"
-                            />
-                        </div>
-
-                        <div>
-                            <label className="block font-medium text-gray-900 mb-2 text-sm">Postal Code *</label>
-                            <input
-                                type="text"
-                                value={formData.pincode}
-                                onChange={(e) => setFormData({ ...formData, pincode: e.target.value })}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-                                placeholder="Enter postal code"
-                            />
-                        </div>
-
-                        <div>
-                            <label className="block font-medium text-gray-900 mb-2 text-sm">Phone *</label>
-                            <input
-                                type="tel"
-                                value={formData.phone}
-                                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-                                placeholder="+94 XX XXX XXXX"
-                            />
-                        </div>
-
-                        <div>
-                            <label className="block font-medium text-gray-900 mb-2 text-sm">Email *</label>
-                            <input
-                                type="email"
-                                value={formData.email}
-                                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-                                placeholder="branch@lms.lk"
-                            />
-                        </div>
-
-                        <div>
-                            <label className="block font-medium text-gray-900 mb-2 text-sm">Branch Manager *</label>
-                            <input
-                                type="text"
-                                value={formData.manager}
-                                onChange={(e) => setFormData({ ...formData, manager: e.target.value })}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-                                placeholder="Enter manager name"
+                                placeholder="Enter full address"
                             />
                         </div>
                     </div>
@@ -162,7 +113,7 @@ export function BranchForm({ isOpen, onClose, onSave, initialData }: BranchFormP
                         onClick={() => onSave(formData)}
                         className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium text-sm"
                     >
-                        {initialData ? 'Update Branch' : 'Add Branch'}
+                        {initialData ? 'Update Branch' : 'Create Branch'}
                     </button>
                 </div>
             </div>
