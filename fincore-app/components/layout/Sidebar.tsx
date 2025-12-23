@@ -53,7 +53,7 @@ export function Sidebar({ currentPage, onNavigate, isOpen, userRole }: SidebarPr
             id: 'branches',
             label: 'Branches',
             icon: <Building2 className="w-5 h-5" />,
-            roles: ['Super Admin', 'Admin']
+            roles: ['super_admin', 'admin']
         },
         {
             id: 'centers',
@@ -74,7 +74,7 @@ export function Sidebar({ currentPage, onNavigate, isOpen, userRole }: SidebarPr
 
     const loanMenuItems = [
         { id: 'loan-create' as Page, label: 'Create Loan', icon: <FileText className="w-4 h-4" /> },
-        { id: 'loan-approval' as Page, label: 'Loan Approval', icon: <Shield className="w-4 h-4" />, roles: ['Manager', 'Admin', 'Super Admin'] },
+        { id: 'loan-approval' as Page, label: 'Loan Approval', icon: <Shield className="w-4 h-4" />, roles: ['manager', 'admin', 'super_admin'] },
         { id: 'loan-list' as Page, label: 'Loan List', icon: <ClipboardList className="w-4 h-4" /> }
     ];
 
@@ -86,7 +86,7 @@ export function Sidebar({ currentPage, onNavigate, isOpen, userRole }: SidebarPr
 
     const financeMenuItems = [
         { id: 'finance' as Page, label: 'Finance Overview', icon: <Wallet className="w-4 h-4" /> },
-        { id: 'fund-transactions' as Page, label: 'Fund Transactions', icon: <ArrowLeftRight className="w-4 h-4" />, roles: ['Super Admin', 'Admin'] },
+        { id: 'fund-transactions' as Page, label: 'Fund Transactions', icon: <ArrowLeftRight className="w-4 h-4" />, roles: ['super_admin', 'admin'] },
         { id: 'branch-transactions' as Page, label: 'Branch Transactions', icon: <Building2 className="w-4 h-4" /> }
     ];
 
@@ -113,8 +113,8 @@ export function Sidebar({ currentPage, onNavigate, isOpen, userRole }: SidebarPr
                 key={item.id}
                 onClick={() => onNavigate(item.id)}
                 className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all group relative ${isActive
-                        ? 'bg-blue-600 text-white shadow-sm'
-                        : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                    ? 'bg-blue-600 text-white shadow-sm'
+                    : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
                     }`}
                 title={isCollapsed ? item.label : ''}
             >
@@ -213,8 +213,8 @@ export function Sidebar({ currentPage, onNavigate, isOpen, userRole }: SidebarPr
                                                 key={item.id}
                                                 onClick={() => onNavigate(item.id)}
                                                 className={`w-full flex items-center gap-2 px-3 py-2 rounded-md transition-all text-sm ${isActive
-                                                        ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 font-medium'
-                                                        : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-200'
+                                                    ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 font-medium'
+                                                    : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-200'
                                                     }`}
                                             >
                                                 {item.icon}
@@ -271,8 +271,8 @@ export function Sidebar({ currentPage, onNavigate, isOpen, userRole }: SidebarPr
                                                 key={item.id}
                                                 onClick={() => onNavigate(item.id)}
                                                 className={`w-full flex items-center gap-2 px-3 py-2 rounded-md transition-all text-sm ${isActive
-                                                        ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 font-medium'
-                                                        : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-200'
+                                                    ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 font-medium'
+                                                    : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-200'
                                                     }`}
                                             >
                                                 {item.icon}
@@ -296,8 +296,8 @@ export function Sidebar({ currentPage, onNavigate, isOpen, userRole }: SidebarPr
                 <button
                     onClick={() => onNavigate('reports')}
                     className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all group relative ${currentPage === 'reports'
-                            ? 'bg-blue-600 text-white shadow-sm'
-                            : 'text-gray-700 hover:bg-gray-100'
+                        ? 'bg-blue-600 text-white shadow-sm'
+                        : 'text-gray-700 hover:bg-gray-100'
                         }`}
                     title={isCollapsed ? 'Reports' : ''}
                 >
@@ -356,8 +356,8 @@ export function Sidebar({ currentPage, onNavigate, isOpen, userRole }: SidebarPr
                                                 key={item.id}
                                                 onClick={() => onNavigate(item.id)}
                                                 className={`w-full flex items-center gap-2 px-3 py-2 rounded-md transition-all text-sm ${isActive
-                                                        ? 'bg-blue-50 text-blue-600 font-medium'
-                                                        : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                                                    ? 'bg-blue-50 text-blue-600 font-medium'
+                                                    : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
                                                     }`}
                                             >
                                                 {item.icon}
@@ -372,7 +372,7 @@ export function Sidebar({ currentPage, onNavigate, isOpen, userRole }: SidebarPr
                 </div>
 
                 {/* Investment Management */}
-                {['Super Admin', 'Admin'].includes(userRole) && (
+                {['super_admin', 'admin'].includes(userRole) && (
                     <>
                         {!isCollapsed && (
                             <div className="px-3 mb-2 pt-3">
@@ -383,8 +383,8 @@ export function Sidebar({ currentPage, onNavigate, isOpen, userRole }: SidebarPr
                         <button
                             onClick={() => onNavigate('investments')}
                             className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all group relative ${currentPage === 'investments'
-                                    ? 'bg-blue-600 text-white shadow-sm'
-                                    : 'text-gray-700 hover:bg-gray-100'
+                                ? 'bg-blue-600 text-white shadow-sm'
+                                : 'text-gray-700 hover:bg-gray-100'
                                 }`}
                             title={isCollapsed ? 'Investment Management' : ''}
                         >
@@ -402,12 +402,12 @@ export function Sidebar({ currentPage, onNavigate, isOpen, userRole }: SidebarPr
                 )}
 
                 {/* Staff Management */}
-                {['Super Admin', 'Admin'].includes(userRole) && (
+                {['super_admin', 'admin'].includes(userRole) && (
                     <button
                         onClick={() => onNavigate('staff-management')}
                         className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all group relative ${currentPage === 'staff-management'
-                                ? 'bg-blue-600 text-white shadow-sm'
-                                : 'text-gray-700 hover:bg-gray-100'
+                            ? 'bg-blue-600 text-white shadow-sm'
+                            : 'text-gray-700 hover:bg-gray-100'
                             }`}
                         title={isCollapsed ? 'Staff Management' : ''}
                     >
@@ -424,12 +424,12 @@ export function Sidebar({ currentPage, onNavigate, isOpen, userRole }: SidebarPr
                 )}
 
                 {/* Roles & Privileges */}
-                {['Super Admin', 'Admin'].includes(userRole) && (
+                {['super_admin', 'admin'].includes(userRole) && (
                     <button
                         onClick={() => onNavigate('roles-privileges')}
                         className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all group relative ${currentPage === 'roles-privileges'
-                                ? 'bg-blue-600 text-white shadow-sm'
-                                : 'text-gray-700 hover:bg-gray-100'
+                            ? 'bg-blue-600 text-white shadow-sm'
+                            : 'text-gray-700 hover:bg-gray-100'
                             }`}
                         title={isCollapsed ? 'Roles & Privileges' : ''}
                     >
@@ -446,12 +446,12 @@ export function Sidebar({ currentPage, onNavigate, isOpen, userRole }: SidebarPr
                 )}
 
                 {/* Complaints */}
-                {['Super Admin', 'Admin'].includes(userRole) && (
+                {['super_admin', 'admin'].includes(userRole) && (
                     <button
                         onClick={() => onNavigate('complaints')}
                         className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all group relative ${currentPage === 'complaints'
-                                ? 'bg-blue-600 text-white shadow-sm'
-                                : 'text-gray-700 hover:bg-gray-100'
+                            ? 'bg-blue-600 text-white shadow-sm'
+                            : 'text-gray-700 hover:bg-gray-100'
                             }`}
                         title={isCollapsed ? 'Complaints' : ''}
                     >
@@ -468,7 +468,7 @@ export function Sidebar({ currentPage, onNavigate, isOpen, userRole }: SidebarPr
                 )}
 
                 {/* System Config */}
-                {['Super Admin', 'Admin'].includes(userRole) && (
+                {['super_admin', 'admin'].includes(userRole) && (
                     <>
                         {!isCollapsed && (
                             <div className="px-3 mb-2 pt-3">
@@ -479,8 +479,8 @@ export function Sidebar({ currentPage, onNavigate, isOpen, userRole }: SidebarPr
                         <button
                             onClick={() => onNavigate('system-config')}
                             className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all group relative ${currentPage === 'system-config'
-                                    ? 'bg-blue-600 text-white shadow-sm'
-                                    : 'text-gray-700 hover:bg-gray-100'
+                                ? 'bg-blue-600 text-white shadow-sm'
+                                : 'text-gray-700 hover:bg-gray-100'
                                 }`}
                             title={isCollapsed ? 'System Config' : ''}
                         >
@@ -503,8 +503,8 @@ export function Sidebar({ currentPage, onNavigate, isOpen, userRole }: SidebarPr
                     <button
                         onClick={() => onNavigate('documents')}
                         className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all group relative mb-1 ${currentPage === 'documents'
-                                ? 'bg-blue-600 text-white shadow-sm'
-                                : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                            ? 'bg-blue-600 text-white shadow-sm'
+                            : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
                             }`}
                         title={isCollapsed ? 'Documents & Downloads' : ''}
                     >
@@ -523,8 +523,8 @@ export function Sidebar({ currentPage, onNavigate, isOpen, userRole }: SidebarPr
                     <button
                         onClick={() => onNavigate('public-website')}
                         className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all group relative ${currentPage === 'public-website'
-                                ? 'bg-blue-600 text-white shadow-sm'
-                                : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                            ? 'bg-blue-600 text-white shadow-sm'
+                            : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
                             }`}
                         title={isCollapsed ? 'Public Website' : ''}
                     >
