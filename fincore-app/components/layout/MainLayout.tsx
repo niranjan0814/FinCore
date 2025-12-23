@@ -1,10 +1,11 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Sidebar } from "./Sidebar";
 import { Header } from "./Header";
 import { ThemeProvider } from "../../contexts/ThemeContext";
 import { usePathname, useRouter } from "next/navigation";
+import { authService } from "../../services/auth.service";
 
 export type Page =
     | 'dashboard' | 'branches' | 'centers' | 'groups' | 'customers'
@@ -21,22 +22,51 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
     const router = useRouter();
 
-    // Mock user for now - in a real app this would come from an auth context
-    const user = {
+    const [user, setUser] = useState({
         name: "Admin User",
-        role: "Super Admin", // Setting as Super Admin to show all options
+        role: "Super Admin", // Fallback Default
         branch: "Head Office"
-    };
+    });
+
+    useEffect(() => {
+        const currentUser = authService.getCurrentUser();
+        if (currentUser) {
+            // Try to get role from the stored roles array first
+            const storedRolesStr = localStorage.getItem('roles');
+            let userRole = currentUser.role;
+
+            if (storedRolesStr) {
+                try {
+                    const roles = JSON.parse(storedRolesStr);
+                    if (Array.isArray(roles) && roles.length > 0) {
+                        // Use the name of the first role (e.g., 'super_admin')
+                        userRole = roles[0].name;
+                    }
+                } catch (e) {
+                    console.error("Failed to parse roles", e);
+                }
+            }
+
+            setUser({
+                name: currentUser.name,
+                role: userRole || 'Staff',
+                branch: 'Head Office' // You might want to store/retrieve this from user details too
+            });
+        }
+    }, [pathname]);
+
+    // If we are on the login page (or any other public page), render children directly without the shell
+    if (pathname === '/login') {
+        return <ThemeProvider>{children}</ThemeProvider>;
+    }
 
     // Determine current page ID from pathname
     const getCurrentPage = (): Page => {
         if (pathname === '/' || pathname === '/dashboard') return 'dashboard';
 
         // Extract the first segment after the slash
-        // e.g., /branches/create -> branches
         const segments = pathname.split('/').filter(Boolean);
         if (segments.length > 0) {
-            // Special mapping for specific paths if needed, otherwise use the segment
             return segments[0];
         }
 
@@ -44,20 +74,27 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
     };
 
     const handleNavigate = (pageId: Page) => {
-        // Map page IDs to routes
         const routeMap: Record<string, string> = {
             'dashboard': '/',
             'branches': '/branches',
             'centers': '/centers',
             'groups': '/groups',
             'customers': '/customers',
-            // Add more mappings as new pages are created
         };
 
-        // Default to /pageId if not in map
-        // For navigation items that don't have pages yet, this might 404, which is expected during dev
         const path = routeMap[pageId as string] || `/${pageId}`;
         router.push(path);
+    };
+
+    const handleLogout = async () => {
+        try {
+            await authService.logout();
+            router.push('/login');
+        } catch (error) {
+            console.error("Logout failed", error);
+            // Force redirect anyway
+            router.push('/login');
+        }
     };
 
     return (
@@ -73,7 +110,7 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
                 <div className="flex-1 flex flex-col overflow-hidden">
                     <Header
                         user={user}
-                        onLogout={() => console.log("Logout")}
+                        onLogout={handleLogout}
                         onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
                     />
 
