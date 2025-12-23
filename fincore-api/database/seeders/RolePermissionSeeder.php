@@ -62,6 +62,14 @@ class RolePermissionSeeder extends Seeder
                 ['name' => 'staff.edit', 'display_name' => 'Edit Staff', 'module' => 'staff', 'permission_group_id' => 1],
                 ['name' => 'staff.delete', 'display_name' => 'Delete Staff', 'module' => 'staff', 'permission_group_id' => 1],
 
+                // Customer Management
+                ['name' => 'customers.view', 'display_name' => 'View Customers', 'module' => 'customers', 'permission_group_id' => 5],
+                ['name' => 'customers.create', 'display_name' => 'Create Customers', 'module' => 'customers', 'permission_group_id' => 5],
+                ['name' => 'customers.edit', 'display_name' => 'Edit Customers', 'module' => 'customers', 'permission_group_id' => 5],
+                ['name' => 'customers.delete', 'display_name' => 'Delete Customers', 'module' => 'customers', 'permission_group_id' => 5],
+                ['name' => 'customers.import', 'display_name' => 'Import Customers', 'module' => 'customers', 'permission_group_id' => 5],
+                ['name' => 'customers.export', 'display_name' => 'Export Customers', 'module' => 'customers', 'permission_group_id' => 5],
+
                 // Role Management
                 ['name' => 'roles.view', 'display_name' => 'View Roles', 'module' => 'roles', 'permission_group_id' => 2],
                 ['name' => 'roles.create', 'display_name' => 'Create Roles', 'module' => 'roles', 'permission_group_id' => 2],
@@ -132,6 +140,12 @@ class RolePermissionSeeder extends Seeder
             $staff = Role::where('name', 'staff')->first();
             $staffPermissions = Permission::whereIn('name', [
                 'dashboard.view',
+                'customers.view',
+                'customers.create',
+                'customers.edit',
+                'customers.delete',
+                'customers.import',
+                'customers.export',
             ])->get();
             $staff->syncPermissions($staffPermissions);
 
