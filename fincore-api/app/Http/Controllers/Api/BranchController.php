@@ -105,11 +105,14 @@ class BranchController extends Controller
                 'city' => 'required|string|max:100',
                 'province' => 'required|string|max:100',
                 'postal_code' => 'required|string|max:20',
-                'phone' => 'required|string|max:20',
+                'phone' => ['required', 'string', 'max:20', 'regex:/^(\+94|0)?[0-9]{9}$/'], // Validates SL format mostly
                 'email' => 'required|email|max:255',
                 'manager_name' => 'required|string|max:255',
                 'staff_ids' => 'nullable|array',
                 'staff_ids.*' => 'string|max:50',
+            ], [
+                'phone.regex' => 'The phone number format is invalid. Use format like 0771234567 or +94771234567',
+                'email.email' => 'Please enter a valid email address',
             ]);
 
             // Auto-generate branch_id if not provided
@@ -269,11 +272,14 @@ class BranchController extends Controller
                 'city' => 'required|string|max:100',
                 'province' => 'required|string|max:100',
                 'postal_code' => 'required|string|max:20',
-                'phone' => 'required|string|max:20',
+                'phone' => ['required', 'string', 'max:20', 'regex:/^(\+94|0)?[0-9]{9}$/'],
                 'email' => 'required|email|max:255',
                 'manager_name' => 'required|string|max:255',
                 'staff_ids' => 'nullable|array',
                 'staff_ids.*' => 'string|max:50',
+            ], [
+                'phone.regex' => 'The phone number format is invalid. Use format like 0771234567 or +94771234567',
+                'email.email' => 'Please enter a valid email address',
             ]);
 
             // Update branch
