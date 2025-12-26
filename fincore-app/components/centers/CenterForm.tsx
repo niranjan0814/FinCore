@@ -46,6 +46,29 @@ export function CenterForm({ isOpen, onClose, onSubmit, initialData }: CenterFor
 
     // Load form data only when opened and wait for it
     useEffect(() => {
+        // Load user role from localStorage
+        const storedRolesStr = localStorage.getItem('roles');
+        if (storedRolesStr) {
+            try {
+                const userRoles = JSON.parse(storedRolesStr);
+                if (Array.isArray(userRoles) && userRoles.length > 0) {
+                    // Just take the first one or prioritize field_officer for this logic
+                    const roles = userRoles.map(r => r.name);
+                    if (roles.includes('field_officer')) {
+                        setCurrentUserRole('field_officer');
+                    } else if (roles.includes('super_admin')) {
+                        setCurrentUserRole('super_admin');
+                    } else if (roles.includes('admin')) {
+                        setCurrentUserRole('admin');
+                    } else {
+                        setCurrentUserRole(roles[0]);
+                    }
+                }
+            } catch (e) {
+                console.error("Error parsing roles", e);
+            }
+        }
+
         const loadFormData = async () => {
             if (!isOpen) return;
 

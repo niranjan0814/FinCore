@@ -126,11 +126,13 @@ export function CenterTable({ centers, totalCenters, getTemporaryAssignment, onE
                                     {/* Actions */}
                                     <div className="col-span-2 flex justify-end gap-2">
                                         {/* <button
+                                        <button
                                             onClick={() => onViewSchedule(center.id)}
                                             className="p-1 px-2 text-xs font-medium text-blue-600 hover:bg-blue-50 rounded transition-colors"
                                         >
                                             Schedule
                                         </button> */}
+                                        
                                         <button
                                             onClick={() => onEdit(center.id)}
                                             className="p-1 px-2 text-xs font-medium text-gray-600 hover:bg-gray-100 rounded transition-colors"

@@ -242,6 +242,9 @@ export function BranchForm({ isOpen, onClose, onSave, initialData }: BranchFormP
                             {errors.manager_name && <p className="text-red-500 text-xs mt-1">{errors.manager_name}</p>}
                         </div>
                     </div>
+
+                    {/* Email & Manager */}
+                    
                 </div>
 
                 <div className="p-6 border-t border-gray-200 flex gap-3 justify-end bg-gray-50 rounded-b-lg">
