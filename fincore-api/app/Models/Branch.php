@@ -11,6 +11,12 @@ class Branch extends Model
         'branch_name',
         'location',
         'address',
+        'city',
+        'province',
+        'postal_code',
+        'phone',
+        'email',
+        'manager_name',
         'staff_ids',
     ];
 

@@ -20,6 +20,15 @@ export interface Center {
     created_at?: string; // was createdDate
     status: 'active' | 'inactive'; // Lowercase in backend validation
     open_days: ScheduleItem[]; // Array of schedule objects
+    branch?: {
+        id: number | string;
+        branch_name: string;
+        branch_id: string;
+    };
+    staff?: {
+        staff_id: string;
+        full_name: string;
+    };
 }
 
 export interface TemporaryAssignment {
@@ -34,7 +43,7 @@ export interface CenterFormData {
     CSU_id: string;
     center_name: string;
     branch_id: string;
-    staff_id: string;
+    staff_id?: string | null;
     address: string;
     location: string;
     status: 'active' | 'inactive';

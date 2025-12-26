@@ -31,12 +31,13 @@ export function CenterTable({ centers, totalCenters, getTemporaryAssignment, onE
         <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
             <div className="bg-gray-50 border-b border-gray-200 px-6 py-3">
                 <div className="grid grid-cols-12 gap-4 text-xs font-semibold text-gray-600 uppercase">
-                    <div className="col-span-3">Center</div>
+                    <div className="col-span-2">Center</div>
                     <div className="col-span-2">Branch</div>
                     <div className="col-span-2">Meeting Schedule</div>
-                    <div className="col-span-2">Assigned User</div>
-                    <div className="col-span-2">Location Type</div>
-                    <div className="col-span-1">Status</div>
+                    <div className="col-span-2 text-center">Assigned User</div>
+                    <div className="col-span-1 text-center">Location</div>
+                    <div className="col-span-1 text-center">Status</div>
+                    <div className="col-span-2 text-right">Actions</div>
                 </div>
             </div>
 
@@ -52,7 +53,7 @@ export function CenterTable({ centers, totalCenters, getTemporaryAssignment, onE
                             <div key={center.id} className="px-6 py-4 hover:bg-gray-50 transition-colors">
                                 <div className="grid grid-cols-12 gap-4 items-center">
                                     {/* Center Info */}
-                                    <div className="col-span-3 flex items-center gap-3">
+                                    <div className="col-span-2 flex items-center gap-3">
                                         <div className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0" style={{ backgroundColor: colors.primary[50] }}>
                                             <Users className="w-5 h-5" style={{ color: colors.primary[600] }} />
                                         </div>
@@ -64,7 +65,7 @@ export function CenterTable({ centers, totalCenters, getTemporaryAssignment, onE
 
                                     {/* Branch */}
                                     <div className="col-span-2">
-                                        <p className="text-sm text-gray-900">{center.branch_id}</p>
+                                        <p className="text-sm text-gray-900">{center.branch?.branch_name || center.branch_id}</p>
                                     </div>
 
                                     {/* Meeting Schedule */}
@@ -79,8 +80,22 @@ export function CenterTable({ centers, totalCenters, getTemporaryAssignment, onE
                                         </div>
                                     </div>
 
-                                    {/* Location Type */}
+                                    {/* Assigned User */}
                                     <div className="col-span-2">
+                                        <div className="flex items-center gap-2 justify-center">
+                                            <div className="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center">
+                                                <User className="w-3 h-3 text-gray-600" />
+                                            </div>
+                                            <div className="min-w-0">
+                                                <p className="text-xs font-medium text-gray-900 truncate">
+                                                    {center.staff?.full_name || center.staff_id || 'Unassigned'}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Location Type */}
+                                    <div className="col-span-1 text-center">
                                         <span className={`px-2 py-1 text-xs font-medium rounded-full ${center.location === 'Urban'
                                             ? 'bg-blue-100 text-blue-800'
                                             : center.location === 'Rural'
@@ -100,13 +115,23 @@ export function CenterTable({ centers, totalCenters, getTemporaryAssignment, onE
                                                 }`}>
                                                 {center.status}
                                             </span>
-                                            {tempAssignment && (
-                                                <div className="flex items-center gap-1">
-                                                    <AlertTriangle className="w-3 h-3 text-orange-600" />
-                                                    <span className="text-xs text-orange-600">Temp</span>
-                                                </div>
-                                            )}
                                         </div>
+                                    </div>
+
+                                    {/* Actions */}
+                                    <div className="col-span-2 flex justify-end gap-2">
+                                        <button
+                                            onClick={() => onViewSchedule(center.id)}
+                                            className="p-1 px-2 text-xs font-medium text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                                        >
+                                            Schedule
+                                        </button>
+                                        <button
+                                            onClick={() => onEdit(center.id)}
+                                            className="p-1 px-2 text-xs font-medium text-gray-600 hover:bg-gray-100 rounded transition-colors"
+                                        >
+                                            Edit
+                                        </button>
                                     </div>
                                 </div>
 

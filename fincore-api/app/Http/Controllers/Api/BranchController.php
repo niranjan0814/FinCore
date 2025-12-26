@@ -11,6 +11,33 @@ use Illuminate\Support\Facades\Log;
 class BranchController extends Controller
 {
     
+    /**
+     * Get all branches for dropdowns/forms (only requires authentication, not permissions)
+     */
+    public function all()
+    {
+        try {
+            $branches = Branch::orderBy('branch_name')
+                ->get();
+
+            return response()->json([
+                'success' => true,
+                'data' => $branches
+            ], 200);
+
+        } catch (\Exception $e) {
+            Log::error('Error fetching all branches', [
+                'error' => $e->getMessage()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to retrieve branches',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
     public function index(Request $request)
     {
         try {
@@ -71,13 +98,26 @@ class BranchController extends Controller
         try {
             // Validate input
             $validated = $request->validate([
-                'branch_id' => 'required|string|unique:branches,branch_id',
+                'branch_id' => 'nullable|string|unique:branches,branch_id',
                 'branch_name' => 'required|string|max:255',
                 'location' => 'nullable|string|max:255',
-                'address' => 'nullable|string',
+                'address' => 'required|string',
+                'city' => 'required|string|max:100',
+                'province' => 'required|string|max:100',
+                'postal_code' => 'required|string|max:20',
+                'phone' => 'required|string|max:20',
+                'email' => 'required|email|max:255',
+                'manager_name' => 'required|string|max:255',
                 'staff_ids' => 'nullable|array',
                 'staff_ids.*' => 'string|max:50',
             ]);
+
+            // Auto-generate branch_id if not provided
+            if (empty($validated['branch_id'])) {
+                $latestBranch = Branch::latest('id')->first();
+                $nextId = $latestBranch ? $latestBranch->id + 1 : 1;
+                $validated['branch_id'] = 'BR' . str_pad($nextId, 4, '0', STR_PAD_LEFT);
+            }
 
             // Create branch
             $branch = Branch::create($validated);
@@ -225,7 +265,13 @@ class BranchController extends Controller
                 ],
                 'branch_name' => 'sometimes|required|string|max:255',
                 'location' => 'nullable|string|max:255',
-                'address' => 'nullable|string',
+                'address' => 'required|string',
+                'city' => 'required|string|max:100',
+                'province' => 'required|string|max:100',
+                'postal_code' => 'required|string|max:20',
+                'phone' => 'required|string|max:20',
+                'email' => 'required|email|max:255',
+                'manager_name' => 'required|string|max:255',
                 'staff_ids' => 'nullable|array',
                 'staff_ids.*' => 'string|max:50',
             ]);

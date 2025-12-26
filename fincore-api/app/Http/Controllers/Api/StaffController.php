@@ -142,6 +142,35 @@ class StaffController extends Controller
     }
 
     /**
+     * Get staff by role (for dropdowns).
+     */
+    public function byRole($role)
+    {
+        try {
+            // Find users with the given role
+            $users = User::role($role)->get();
+            
+            // Extract user_names (which are staff_ids)
+            $staffIds = $users->pluck('user_name');
+            
+            // Find staff records
+            $staff = Staff::whereIn('staff_id', $staffIds)
+                ->select('staff_id', 'full_name') // Select only needed fields
+                ->get();
+            
+            return response()->json([
+                'status' => 'success',
+                'data' => $staff
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to fetch staff by role: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
      * Get Staff By Id.
      */
     public function show($staff_id)

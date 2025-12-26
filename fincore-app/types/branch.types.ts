@@ -5,6 +5,12 @@ export interface Branch {
     branch_name: string;
     location: string;
     address: string | null;
+    city?: string;
+    province?: string;
+    postal_code?: string;
+    phone?: string;
+    email?: string;
+    manager_name?: string;
     staff_ids: string[] | null;
     created_at?: string;
     updated_at?: string;
@@ -17,10 +23,16 @@ export interface Branch {
 }
 
 export interface BranchFormData {
-    branch_id: string;
+    branch_id?: string;
     branch_name: string;
-    location: string;
+    location?: string;
     address: string;
+    city: string;
+    province: string;
+    postal_code: string;
+    phone: string;
+    email: string;
+    manager_name: string;
     staff_ids?: string[];
 }
 
