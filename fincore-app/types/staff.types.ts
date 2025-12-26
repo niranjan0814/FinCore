@@ -1,6 +1,7 @@
 export interface User {
     id: string;
     name: string;
+    staffId?: string; // Staff ID for staff members (e.g., ST0001)
     email: string;
     role: string;
     branch: string;

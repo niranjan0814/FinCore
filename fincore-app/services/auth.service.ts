@@ -84,5 +84,77 @@ export const authService = {
     isAuthenticated: (): boolean => {
         if (typeof window === 'undefined') return false;
         return !!localStorage.getItem('token');
+    },
+
+    hasPermission: (permission: string): boolean => {
+        if (typeof window === 'undefined') return false;
+
+        const permissionsStr = localStorage.getItem('permissions');
+        if (!permissionsStr) return false;
+
+        try {
+            const permissions = JSON.parse(permissionsStr);
+            return Array.isArray(permissions) && permissions.some((p: any) => p.name === permission);
+        } catch (e) {
+            console.error('Error parsing permissions from localStorage', e);
+            return false;
+        }
+    },
+
+    hasRole: (roleName: string): boolean => {
+        if (typeof window === 'undefined') return false;
+        const rolesStr = localStorage.getItem('roles');
+        if (!rolesStr) return false;
+
+        try {
+            const roles = JSON.parse(rolesStr);
+            return Array.isArray(roles) && roles.some((r: any) => r.name === roleName);
+        } catch (e) {
+            console.error('Error parsing roles from localStorage', e);
+            return false;
+        }
+    },
+    refreshProfile: async (): Promise<void> => {
+        try {
+            const response = await fetch(`${API_BASE_URL}/auth/me`, {
+                headers: getHeaders()
+            });
+            const data = await response.json();
+            if (response.ok && data.statusCode === 2000) {
+                const { user, roles, permissions } = data.data;
+                localStorage.setItem('user', JSON.stringify(user));
+                localStorage.setItem('roles', JSON.stringify(roles));
+                localStorage.setItem('permissions', JSON.stringify(permissions));
+            }
+        } catch (error) {
+            console.error('Failed to refresh profile', error);
+        }
+    },
+    getHighestHierarchy: (): number => {
+        if (typeof window === 'undefined') return 1000;
+        const rolesStr = localStorage.getItem('roles');
+        if (!rolesStr) return 1000;
+        try {
+            const roles = JSON.parse(rolesStr);
+            if (!Array.isArray(roles) || roles.length === 0) return 1000;
+
+            // Try to find the actual hierarchy first
+            const hierarchies = roles
+                .map((r: any) => r.hierarchy)
+                .filter((h: any) => h !== undefined && h !== null);
+
+            if (hierarchies.length > 0) {
+                return Math.min(...hierarchies);
+            }
+
+            // Fallback for legacy sessions (pre-hierarchy sync)
+            if (roles.some((r: any) => r.name === 'super_admin')) return 1;
+            if (roles.some((r: any) => r.name === 'admin')) return 10;
+            if (roles.some((r: any) => r.name === 'manager')) return 100;
+
+            return 1000;
+        } catch (e) {
+            return 1000;
+        }
     }
 };

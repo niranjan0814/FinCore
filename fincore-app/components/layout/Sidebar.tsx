@@ -1,4 +1,5 @@
 import React from 'react';
+import { authService } from '../../services/auth.service';
 import {
     LayoutDashboard,
     Building2,
@@ -38,23 +39,30 @@ interface MenuItem {
     icon: React.ReactNode;
     submenu?: MenuItem[];
     roles?: string[];
+    permission?: string;
 }
 
 export function Sidebar({ currentPage, onNavigate, isOpen, userRole }: SidebarProps) {
     const [expandedMenus, setExpandedMenus] = React.useState<string[]>(['loans', 'collections', 'finance']);
     const [isCollapsed, setIsCollapsed] = React.useState(false);
+    const [isMounted, setIsMounted] = React.useState(false);
+
+    React.useEffect(() => {
+        setIsMounted(true);
+    }, []);
 
     const menuItems: MenuItem[] = [
         {
             id: 'dashboard',
             label: 'Dashboard',
-            icon: <LayoutDashboard className="w-5 h-5" />
+            icon: <LayoutDashboard className="w-5 h-5" />,
+            permission: 'dashboard.view'
         },
         {
             id: 'branches',
             label: 'Branches',
             icon: <Building2 className="w-5 h-5" />,
-            roles: ['super_admin', 'admin']
+            permission: 'branches.view'
         },
         {
             id: 'centers-section' as Page,
@@ -71,36 +79,39 @@ export function Sidebar({ currentPage, onNavigate, isOpen, userRole }: SidebarPr
                     label: 'Meeting Schedule',
                     icon: <ClipboardList className="w-4 h-4" />
                 }
-            ]
+            ],
+            permission: 'centers.view'
         },
         {
             id: 'groups',
             label: 'Groups',
-            icon: <UsersRound className="w-5 h-5" />
+            icon: <UsersRound className="w-5 h-5" />,
+            permission: 'groups.view'
         },
         {
             id: 'customers',
             label: 'Customers',
-            icon: <User className="w-5 h-5" />
+            icon: <User className="w-5 h-5" />,
+            permission: 'customers.view'
         }
     ];
 
-    const loanMenuItems = [
-        { id: 'loan-create' as Page, label: 'Create Loan', icon: <FileText className="w-4 h-4" /> },
-        { id: 'loan-approval' as Page, label: 'Loan Approval', icon: <Shield className="w-4 h-4" />, roles: ['manager', 'admin', 'super_admin'] },
-        { id: 'loan-list' as Page, label: 'Loan List', icon: <ClipboardList className="w-4 h-4" /> }
+    const loanMenuItems: MenuItem[] = [
+        { id: 'loan-create' as Page, label: 'Create Loan', icon: <FileText className="w-4 h-4" />, permission: 'loans.create' },
+        { id: 'loan-approval' as Page, label: 'Loan Approval', icon: <Shield className="w-4 h-4" />, permission: 'loans.approve' },
+        { id: 'loan-list' as Page, label: 'Loan List', icon: <ClipboardList className="w-4 h-4" />, permission: 'loans.view' }
     ];
 
-    const collectionMenuItems = [
-        { id: 'due-list' as Page, label: 'Due List', icon: <ClipboardList className="w-4 h-4" /> },
-        { id: 'collections' as Page, label: 'Collections', icon: <DollarSign className="w-4 h-4" /> },
-        { id: 'collection-summary' as Page, label: 'Collection Summary', icon: <Receipt className="w-4 h-4" /> }
+    const collectionMenuItems: MenuItem[] = [
+        { id: 'due-list' as Page, label: 'Due List', icon: <ClipboardList className="w-4 h-4" />, permission: 'collections.view' },
+        { id: 'collections' as Page, label: 'Collections', icon: <DollarSign className="w-4 h-4" />, permission: 'collections.create' },
+        { id: 'collection-summary' as Page, label: 'Collection Summary', icon: <Receipt className="w-4 h-4" />, permission: 'collections.view' }
     ];
 
-    const financeMenuItems = [
-        { id: 'finance' as Page, label: 'Finance Overview', icon: <Wallet className="w-4 h-4" /> },
-        { id: 'fund-transactions' as Page, label: 'Fund Transactions', icon: <ArrowLeftRight className="w-4 h-4" />, roles: ['super_admin', 'admin'] },
-        { id: 'branch-transactions' as Page, label: 'Branch Transactions', icon: <Building2 className="w-4 h-4" /> }
+    const financeMenuItems: MenuItem[] = [
+        { id: 'finance' as Page, label: 'Finance Overview', icon: <Wallet className="w-4 h-4" />, permission: 'finance.view' },
+        { id: 'fund-transactions' as Page, label: 'Fund Transactions', icon: <ArrowLeftRight className="w-4 h-4" />, permission: 'finance.transactions' },
+        { id: 'branch-transactions' as Page, label: 'Branch Transactions', icon: <Building2 className="w-4 h-4" />, permission: 'finance.view' }
     ];
 
     const toggleMenu = (menuId: string) => {
@@ -114,14 +125,22 @@ export function Sidebar({ currentPage, onNavigate, isOpen, userRole }: SidebarPr
     };
 
     const renderMenuItem = (item: MenuItem) => {
-        // Role-based filtering
+        // Role-based filtering (legacy support)
         if (item.roles && !item.roles.includes(userRole)) {
             return null;
         }
 
         const hasSubmenu = item.submenu && item.submenu.length > 0;
-        const isActive = currentPage === item.id || (hasSubmenu && item.submenu?.some(sub => currentPage === sub.id));
+        // const isActive = currentPage === item.id || (hasSubmenu && item.submenu?.some(sub => currentPage === sub.id));
         const isExpanded = expandedMenus.includes(item.id as string);
+        // Permission-based filtering (preferred)
+        // During hydration (isMounted = false), we return null for any item requiring a permission
+        // to match the server-side render where hasPermission always returns false.
+        if (item.permission && (!isMounted || !authService.hasPermission(item.permission))) {
+            return null;
+        }
+
+        const isActive = currentPage === item.id;
 
         if (hasSubmenu) {
             return (
@@ -282,6 +301,7 @@ export function Sidebar({ currentPage, onNavigate, isOpen, userRole }: SidebarPr
                                 <div className="ml-8 mt-1 space-y-0.5 border-l-2 border-gray-200 dark:border-gray-700 pl-2">
                                     {loanMenuItems.map(item => {
                                         if (item.roles && !item.roles.includes(userRole)) return null;
+                                        if (item.permission && (!isMounted || !authService.hasPermission(item.permission))) return null;
                                         const isActive = currentPage === item.id;
                                         return (
                                             <button
@@ -340,6 +360,7 @@ export function Sidebar({ currentPage, onNavigate, isOpen, userRole }: SidebarPr
                             {expandedMenus.includes('collections') && (
                                 <div className="ml-8 mt-1 space-y-0.5 border-l-2 border-gray-200 dark:border-gray-700 pl-2">
                                     {collectionMenuItems.map(item => {
+                                        if (item.permission && (!isMounted || !authService.hasPermission(item.permission))) return null;
                                         const isActive = currentPage === item.id;
                                         return (
                                             <button
@@ -425,6 +446,7 @@ export function Sidebar({ currentPage, onNavigate, isOpen, userRole }: SidebarPr
                                 <div className="ml-8 mt-1 space-y-0.5 border-l-2 border-gray-200 pl-2">
                                     {financeMenuItems.map(item => {
                                         if (item.roles && !item.roles.includes(userRole)) return null;
+                                        if (item.permission && (!isMounted || !authService.hasPermission(item.permission))) return null;
                                         const isActive = currentPage === item.id;
                                         return (
                                             <button
@@ -447,7 +469,7 @@ export function Sidebar({ currentPage, onNavigate, isOpen, userRole }: SidebarPr
                 </div>
 
                 {/* Investment Management */}
-                {['super_admin', 'admin'].includes(userRole) && (
+                {isMounted && authService.hasPermission('investments.view') && (
                     <>
                         {!isCollapsed && (
                             <div className="px-3 mb-2 pt-3">
@@ -477,7 +499,7 @@ export function Sidebar({ currentPage, onNavigate, isOpen, userRole }: SidebarPr
                 )}
 
                 {/* Staff Management */}
-                {['super_admin', 'admin'].includes(userRole) && (
+                {isMounted && authService.hasPermission('staff.view') && (
                     <button
                         onClick={() => onNavigate('staff-management')}
                         className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all group relative ${currentPage === 'staff-management'
@@ -499,7 +521,7 @@ export function Sidebar({ currentPage, onNavigate, isOpen, userRole }: SidebarPr
                 )}
 
                 {/* Roles & Privileges */}
-                {['super_admin', 'admin'].includes(userRole) && (
+                {isMounted && authService.hasPermission('roles.view') && (
                     <button
                         onClick={() => onNavigate('roles-privileges')}
                         className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all group relative ${currentPage === 'roles-privileges'
@@ -521,7 +543,7 @@ export function Sidebar({ currentPage, onNavigate, isOpen, userRole }: SidebarPr
                 )}
 
                 {/* Complaints */}
-                {['super_admin', 'admin'].includes(userRole) && (
+                {isMounted && authService.hasPermission('complaints.view') && (
                     <button
                         onClick={() => onNavigate('complaints')}
                         className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all group relative ${currentPage === 'complaints'
@@ -543,7 +565,7 @@ export function Sidebar({ currentPage, onNavigate, isOpen, userRole }: SidebarPr
                 )}
 
                 {/* System Config */}
-                {['super_admin', 'admin'].includes(userRole) && (
+                {isMounted && authService.hasPermission('settings.view') && (
                     <>
                         {!isCollapsed && (
                             <div className="px-3 mb-2 pt-3">

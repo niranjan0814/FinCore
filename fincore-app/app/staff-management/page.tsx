@@ -16,15 +16,46 @@ export default function StaffManagementPage() {
     const [roles, setRoles] = useState<any[]>([]); // Using any[] to bypass strict check for now, ideally update type
     const [permissions, setPermissions] = useState<Permission[]>([]);
     const [loading, setLoading] = useState(true);
+    const [editingUser, setEditingUser] = useState<User | null>(null);
+
+    const [currentUserRole, setCurrentUserRole] = useState<string>('');
 
     useEffect(() => {
+        // checks for user role (Super Admin vs Admin) using localStorage.
+        const storedRolesStr = localStorage.getItem('roles');
+        if (storedRolesStr) {
+            try {
+                const userRoles = JSON.parse(storedRolesStr);
+                if (Array.isArray(userRoles) && userRoles.length > 0) {
+                    // Prioritize super_admin, then admin
+                    if (userRoles.some(ur => ur.name === 'super_admin')) {
+                        setCurrentUserRole('super_admin');
+                    } else if (userRoles.some(ur => ur.name === 'admin')) {
+                        setCurrentUserRole('admin');
+                    } else {
+                        setCurrentUserRole(userRoles[0].name);
+                    }
+                }
+            } catch (e) { }
+        }
         loadData();
     }, []);
 
     const loadData = async () => {
         try {
+            // Determine user type to fetch based on current role (or check locastorage again as state might not be set yet)
+            let isSuperAdmin = false;
+            if (typeof window !== 'undefined') {
+                const storedRolesStr = localStorage.getItem('roles');
+                if (storedRolesStr && storedRolesStr.includes('super_admin')) {
+                    isSuperAdmin = true;
+                }
+            }
+
+            const userTypeToFetch = isSuperAdmin ? 'admins' : 'staff';
+
             const [fetchedUsers, fetchedRoles, fetchedPermissions] = await Promise.all([
-                staffService.getUsers(),
+                staffService.getUsers(userTypeToFetch),
                 staffService.getAllRoles(),
                 staffService.getPermissions()
             ]);
@@ -38,16 +69,22 @@ export default function StaffManagementPage() {
         }
     };
 
-    const handleAddUser = async (userData: any) => {
-        try {
-            await staffService.createUser(userData);
-            setShowAddUserModal(false);
-            loadData(); // Reload to show new user
-        } catch (e: any) {
-            console.error(e);
-            // Error handled in the form mostly, but good to catch here too
-            alert(e.message);
+    const handleSaveUser = async (userData: any) => {
+        let response;
+        if (editingUser) {
+            response = await staffService.updateUser(editingUser.id, userData);
+        } else {
+            response = await staffService.createUser(userData);
         }
+        setShowAddUserModal(false);
+        setEditingUser(null);
+        loadData(); // Reload to show new user or updated user
+        return response;
+    };
+
+    const handleEditUser = (user: User) => {
+        setEditingUser(user);
+        setShowAddUserModal(true);
     };
 
     const stats: StaffStats = {
@@ -70,7 +107,10 @@ export default function StaffManagementPage() {
                 </div>
                 {activeTab === 'users' && (
                     <button
-                        onClick={() => setShowAddUserModal(true)}
+                        onClick={() => {
+                            setEditingUser(null);
+                            setShowAddUserModal(true);
+                        }}
                         className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors shadow-sm"
                     >
                         <Plus className="w-4 h-4" />
@@ -112,7 +152,7 @@ export default function StaffManagementPage() {
                 {activeTab === 'users' && (
                     <StaffTable
                         users={users}
-                        onEdit={(user) => console.log('Edit', user)}
+                        onEdit={handleEditUser}
                         onDelete={(id) => console.log('Delete', id)}
                     />
                 )}
@@ -123,12 +163,25 @@ export default function StaffManagementPage() {
                 )}
             </div>
 
-            {/* Add User Modal */}
+            {/* Add/Edit User Modal */}
             {showAddUserModal && (
                 <StaffForm
-                    onClose={() => setShowAddUserModal(false)}
-                    onSubmit={handleAddUser}
-                    roles={roles}
+                    onClose={() => {
+                        setShowAddUserModal(false);
+                        setEditingUser(null);
+                    }}
+                    onSubmit={handleSaveUser}
+                    initialData={editingUser}
+                    roles={roles.filter(r => {
+                        if (currentUserRole === 'super_admin') {
+                            // If super admin, only show 'admin' role
+                            return r.name === 'admin';
+                        } else if (currentUserRole === 'admin') {
+                            // If admin, show everything EXCEPT super_admin and admin
+                            return r.name !== 'super_admin' && r.name !== 'admin';
+                        }
+                        return true;
+                    })}
                 />
             )}
         </div>

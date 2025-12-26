@@ -3,10 +3,11 @@
 import React, { useState, useEffect } from "react";
 import { Sidebar } from "./Sidebar";
 import { Header } from "./Header";
-import { ThemeProvider } from "../../contexts/ThemeContext";
+import { ThemeProvider, useTheme } from "../../contexts/ThemeContext";
 import { usePathname, useRouter } from "next/navigation";
 import { authService } from "../../services/auth.service";
-import { Toaster } from 'react-hot-toast';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export type Page =
     | 'dashboard' | 'branches' | 'centers' | 'groups' | 'customers'
@@ -18,10 +19,11 @@ export type Page =
     | 'complaints' | 'system-config' | 'documents' | 'public-website'
     | string;
 
-export function MainLayout({ children }: { children: React.ReactNode }) {
+function MainLayoutContent({ children }: { children: React.ReactNode }) {
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const pathname = usePathname();
     const router = useRouter();
+    const { isDarkMode } = useTheme();
 
     const [user, setUser] = useState({
         name: "Admin User",
@@ -30,6 +32,7 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
     });
 
     useEffect(() => {
+        authService.refreshProfile(); // Background refresh to sync hierarchy/permissions
         const currentUser = authService.getCurrentUser();
         if (currentUser) {
             // Try to get role from the stored roles array first
@@ -58,7 +61,23 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
 
     // If we are on the login page (or any other public page), render children directly without the shell
     if (pathname === '/login') {
-        return <ThemeProvider>{children}</ThemeProvider>;
+        return (
+            <>
+                <ToastContainer
+                    position="top-right"
+                    autoClose={3000}
+                    theme={isDarkMode ? "dark" : "light"}
+                    hideProgressBar={false}
+                    newestOnTop
+                    closeOnClick
+                    rtl={false}
+                    pauseOnFocusLoss
+                    draggable
+                    pauseOnHover
+                />
+                {children}
+            </>
+        );
     }
 
     // Determine current page ID from pathname
@@ -82,6 +101,7 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
             'meeting-scheduling': '/meeting-scheduling',
             'groups': '/groups',
             'customers': '/customers',
+            'roles-privileges': '/roles-privileges',
         };
 
         const path = routeMap[pageId as string] || `/${pageId}`;
@@ -100,30 +120,18 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
     };
 
     return (
-        <ThemeProvider>
-            <Toaster
+        <>
+            <ToastContainer
                 position="top-right"
-                toastOptions={{
-                    duration: 4000,
-                    style: {
-                        background: '#fff',
-                        color: '#363636',
-                    },
-                    success: {
-                        duration: 3000,
-                        iconTheme: {
-                            primary: '#10b981',
-                            secondary: '#fff',
-                        },
-                    },
-                    error: {
-                        duration: 4000,
-                        iconTheme: {
-                            primary: '#ef4444',
-                            secondary: '#fff',
-                        },
-                    },
-                }}
+                autoClose={3000}
+                theme={isDarkMode ? "dark" : "light"}
+                hideProgressBar={false}
+                newestOnTop
+                closeOnClick
+                rtl={false}
+                pauseOnFocusLoss
+                draggable
+                pauseOnHover
             />
             <div className="flex h-screen bg-gray-50 dark:bg-gray-900 transition-colors">
                 <Sidebar
@@ -145,6 +153,14 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
                     </main>
                 </div>
             </div>
+        </>
+    );
+}
+
+export function MainLayout({ children }: { children: React.ReactNode }) {
+    return (
+        <ThemeProvider>
+            <MainLayoutContent>{children}</MainLayoutContent>
         </ThemeProvider>
     );
 }
