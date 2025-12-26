@@ -7,7 +7,7 @@ import { GroupForm } from './GroupForm';
 import { GroupTable } from './GroupTable';
 import { GroupMemberModal } from './GroupMemberModal';
 import { groupService } from '../../services/group.service';
-import toast from 'react-hot-toast';
+import { toast } from 'react-toastify';
 
 export function ViewGroups() {
     const [groups, setGroups] = useState<Group[]>([]);

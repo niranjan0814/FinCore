@@ -6,7 +6,8 @@ import { Center, CenterFormData, TemporaryAssignment } from '../../types/center.
 import { CenterForm } from './CenterForm';
 import { CenterTable } from './CenterTable';
 import { centerService } from '../../services/center.service';
-import toast from 'react-hot-toast';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export function ViewScheduling() {
     const [centers, setCenters] = useState<Center[]>([]);

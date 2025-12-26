@@ -9,7 +9,8 @@ import { BranchTable } from '../../components/branches/BranchTable';
 import { BranchForm } from '../../components/branches/BranchForm';
 import { ConfirmDialog } from '../../components/common/ConfirmDialog';
 import { colors } from '../../themes/colors';
-import toast from 'react-hot-toast';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export default function BranchManagementPage() {
     const [branches, setBranches] = useState<Branch[]>([]);
@@ -202,6 +203,19 @@ export default function BranchManagementPage() {
                     setShowDeleteConfirm(false);
                     setBranchToDelete(null);
                 }}
+            />
+
+            {/* Toast Container for Notifications */}
+            <ToastContainer
+                position="top-right"
+                autoClose={3000}
+                hideProgressBar={false}
+                newestOnTop={false}
+                closeOnClick
+                rtl={false}
+                pauseOnFocusLoss
+                draggable
+                pauseOnHover
             />
         </div>
     );
