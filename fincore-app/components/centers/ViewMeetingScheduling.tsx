@@ -4,6 +4,10 @@ import React, { useState, useEffect } from 'react';
 import { Search, Filter, Calendar, Clock, MapPin, User, Users, X, Plus } from 'lucide-react';
 import { Center, TemporaryAssignment } from '../../types/center.types';
 import { centerService } from '../../services/center.service';
+import { branchService } from '../../services/branch.service';
+import { API_BASE_URL, getHeaders } from '../../services/api.config';
+import { Branch } from '../../types/branch.types';
+import { Staff } from '../../types/staff.types';
 
 export function ViewMeetingScheduling() {
     const [centers, setCenters] = useState<Center[]>([]);
@@ -28,9 +32,8 @@ export function ViewMeetingScheduling() {
         reason: ''
     });
 
-    // Mock data for filters - ideally these would come from an API too
-    const branches = ['Head Office', 'Kandy Branch', 'Galle Branch', 'Negombo Branch'];
-    const staffList = ['Staff A', 'Staff B', 'Staff C', 'Staff D'];
+    const [branches, setBranches] = useState<Branch[]>([]);
+    const [staffList, setStaffList] = useState<Staff[]>([]);
 
     useEffect(() => {
         loadCenters();
@@ -39,10 +42,29 @@ export function ViewMeetingScheduling() {
     const loadCenters = async () => {
         try {
             setIsLoading(true);
-            const data = await centerService.getCenters();
-            setCenters(data);
+            const [centersData, branchesData, fieldOfficersResponse] = await Promise.all([
+                centerService.getCenters(),
+                branchService.getBranches(),
+                fetch(`${API_BASE_URL}/staffs/by-role/field_officer`, {
+                    headers: getHeaders(),
+                    credentials: 'include'
+                }).then(res => res.ok ? res.json() : { data: [] })
+            ]);
+
+            setCenters(centersData || []);
+            setBranches(branchesData || []);
+
+            // Log for debugging (though USER won't see it directly, it ensures we follow CenterForm pattern)
+            if (fieldOfficersResponse?.data && Array.isArray(fieldOfficersResponse.data)) {
+                setStaffList(fieldOfficersResponse.data);
+            } else if (Array.isArray(fieldOfficersResponse)) {
+                setStaffList(fieldOfficersResponse);
+            } else {
+                setStaffList([]);
+            }
         } catch (err: any) {
-            setError(err.message || 'Failed to load centers');
+            console.error("Error loading meeting scheduling data:", err);
+            setError(err.message || 'Failed to load data');
         } finally {
             setIsLoading(false);
         }
@@ -122,7 +144,7 @@ export function ViewMeetingScheduling() {
                         >
                             <option value="">All Branches</option>
                             {branches.map(branch => (
-                                <option key={branch} value={branch}>{branch}</option>
+                                <option key={branch.id} value={branch.id}>{branch.branch_name}</option>
                             ))}
                         </select>
                     </div>
@@ -136,7 +158,7 @@ export function ViewMeetingScheduling() {
                         >
                             <option value="">All Users</option>
                             {staffList.map(staff => (
-                                <option key={staff} value={staff}>{staff}</option>
+                                <option key={staff.staff_id} value={staff.staff_id}>{staff.full_name}</option>
                             ))}
                         </select>
                     </div>
@@ -266,11 +288,14 @@ export function ViewMeetingScheduling() {
                                     <select
                                         value={assignmentForm.temporaryUser}
                                         onChange={(e) => setAssignmentForm({ ...assignmentForm, temporaryUser: e.target.value })}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+                                        required
                                     >
                                         <option value="">Select User</option>
-                                        {staffList.filter(staff => staff !== selectedCenter.staff_id).map(staff => (
-                                            <option key={staff} value={staff}>{staff}</option>
+                                        {staffList.map((staff) => (
+                                            <option key={staff.staff_id} value={staff.full_name}>
+                                                {staff.full_name}
+                                            </option>
                                         ))}
                                     </select>
                                 </div>
