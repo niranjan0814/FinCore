@@ -35,19 +35,35 @@ export function ViewScheduling() {
     };
 
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+    const [editingCenter, setEditingCenter] = useState<Center | null>(null);
 
     const handleCreateCenter = async (centerData: CenterFormData) => {
         try {
-            const newCenter = await centerService.createCenter(centerData);
-            setCenters([...centers, newCenter]);
+            if (editingCenter) {
+                const updatedCenter = await centerService.updateCenter(editingCenter.id, centerData);
+                setCenters(centers.map(c => c.id === updatedCenter.id ? updatedCenter : c));
+                toast.success('Center updated successfully!');
+            } else {
+                const newCenter = await centerService.createCenter(centerData);
+                setCenters([...centers, newCenter]);
+                toast.success('Center created successfully!');
+            }
             setIsCreateModalOpen(false);
-            toast.success('Center created successfully!');
+            setEditingCenter(null);
         } catch (err: any) {
-            console.error('Failed to create center:', err);
+            console.error('Failed to save center:', err);
             const errorMessage = err.errors ?
                 Object.values(err.errors).flat().join(', ') :
-                err.message || 'Failed to create center';
+                err.message || 'Failed to save center';
             toast.error(errorMessage);
+        }
+    };
+
+    const handleEdit = (centerId: string) => {
+        const center = centers.find(c => c.id === centerId);
+        if (center) {
+            setEditingCenter(center);
+            setIsCreateModalOpen(true);
         }
     };
 
@@ -67,7 +83,7 @@ export function ViewScheduling() {
     const filteredCenters = centers.filter(center => {
         const matchesSearch = center.center_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
             center.CSU_id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            center.branch_id.toLowerCase().includes(searchTerm.toLowerCase());
+            String(center.branch_id).toLowerCase().includes(searchTerm.toLowerCase());
         const matchesDay = !selectedDay || (center.open_days && center.open_days.some(s => s.day === selectedDay));
         return matchesSearch && matchesDay;
     });
@@ -155,7 +171,7 @@ export function ViewScheduling() {
                 centers={filteredCenters}
                 totalCenters={centers.length}
                 getTemporaryAssignment={getTemporaryAssignment}
-                onEdit={(id) => console.log('Edit center:', id)}
+                onEdit={handleEdit}
                 onViewSchedule={(id) => console.log('View schedule:', id)}
             />
 
@@ -170,7 +186,11 @@ export function ViewScheduling() {
             {/* Create Center Modal */}
             <CenterForm
                 isOpen={isCreateModalOpen}
-                onClose={() => setIsCreateModalOpen(false)}
+                onClose={() => {
+                    setIsCreateModalOpen(false);
+                    setEditingCenter(null);
+                }}
+                initialData={editingCenter}
                 onSubmit={handleCreateCenter}
             />
         </div>

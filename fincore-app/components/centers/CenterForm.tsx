@@ -18,8 +18,32 @@ export function CenterForm({ isOpen, onClose, onSubmit, initialData }: CenterFor
     const [branches, setBranches] = useState<Branch[]>([]);
     const [staffList, setStaffList] = useState<Staff[]>([]);
     const [isLoadingData, setIsLoadingData] = useState(false);
+    const [currentUserRole, setCurrentUserRole] = useState<string>('');
 
     useEffect(() => {
+        // Load user role from localStorage
+        const storedRolesStr = localStorage.getItem('roles');
+        if (storedRolesStr) {
+            try {
+                const userRoles = JSON.parse(storedRolesStr);
+                if (Array.isArray(userRoles) && userRoles.length > 0) {
+                    // Just take the first one or prioritize field_officer for this logic
+                    const roles = userRoles.map(r => r.name);
+                    if (roles.includes('field_officer')) {
+                        setCurrentUserRole('field_officer');
+                    } else if (roles.includes('super_admin')) {
+                        setCurrentUserRole('super_admin');
+                    } else if (roles.includes('admin')) {
+                        setCurrentUserRole('admin');
+                    } else {
+                        setCurrentUserRole(roles[0]);
+                    }
+                }
+            } catch (e) {
+                console.error("Error parsing roles", e);
+            }
+        }
+
         const loadFormData = async () => {
             setIsLoadingData(true);
             try {
@@ -93,7 +117,7 @@ export function CenterForm({ isOpen, onClose, onSubmit, initialData }: CenterFor
             CSU_id: formData.get('centerNumber') as string,
             center_name: formData.get('name') as string,
             branch_id: formData.get('branch') as string,
-            staff_id: formData.get('contactPerson') as string,
+            staff_id: (formData.get('contactPerson') as string) || null,
             address: formData.get('address') as string,
             location: formData.get('locationType') as string,
             status: (initialData?.status || 'active') as 'active' | 'inactive',
@@ -163,7 +187,7 @@ export function CenterForm({ isOpen, onClose, onSubmit, initialData }: CenterFor
                             >
                                 <option value="">Select Branch</option>
                                 {branches.map((branch) => (
-                                    <option key={branch.id} value={branch.branch_id}>
+                                    <option key={branch.id} value={branch.id}>
                                         {branch.branch_name} ({branch.branch_id})
                                     </option>
                                 ))}
@@ -253,24 +277,25 @@ export function CenterForm({ isOpen, onClose, onSubmit, initialData }: CenterFor
                         </button>
                     </div>
 
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Center User (Staff) *
-                        </label>
-                        <select
-                            name="contactPerson"
-                            required
-                            defaultValue={initialData?.staff_id}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        >
-                            <option value="">Select Staff Member</option>
-                            {staffList.map((staff) => (
-                                <option key={staff.staff_id} value={staff.staff_id}>
-                                    {staff.full_name} ({staff.staff_id})
-                                </option>
-                            ))}
-                        </select>
-                    </div>
+                    {currentUserRole !== 'field_officer' && (
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                Center User (Staff)
+                            </label>
+                            <select
+                                name="contactPerson"
+                                defaultValue={initialData?.staff_id || ""}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            >
+                                <option value="">Select Staff Member</option>
+                                {staffList.map((staff) => (
+                                    <option key={staff.staff_id} value={staff.staff_id}>
+                                        {staff.full_name} ({staff.staff_id})
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                    )}
 
                     <div className="p-4 border-t border-gray-200 flex gap-3 justify-end bg-gray-50">
                         <button

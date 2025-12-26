@@ -18,8 +18,8 @@ class RoleController extends BaseController
         $this->roleService = $roleService;
         
         // Middleware
-        $this->middleware(['auth:sanctum', 'permission:roles.view'])
-            ->except(['all']);
+        $this->middleware(['auth:sanctum'])
+            ->except([]);
         $this->middleware(['permission:roles.create'], ['only' => ['store']]);
         $this->middleware(['permission:roles.edit'], ['only' => ['update', 'syncPermissions']]);
         $this->middleware(['permission:roles.delete'], ['only' => ['destroy']]);
@@ -211,9 +211,18 @@ class RoleController extends BaseController
 public function all()
 {
     $user = auth()->user();
+    
+    if (!$user) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Unauthorized'
+        ], 401);
+    }
+    
     $query = Role::select('id', 'name', 'display_name', 'level', 'description');
     
-    if ($user) {
+    // Only filter by hierarchy if user has the method
+    if (method_exists($user, 'getRoleHierarchy')) {
         $query->where('hierarchy', '>', $user->getRoleHierarchy());
     }
 

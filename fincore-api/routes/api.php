@@ -44,6 +44,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Branch Management
     Route::prefix('branches')->group(function () {
+        Route::get('/all', [BranchController::class, 'all']); // Public for authenticated users (dropdowns)
         Route::get('/', [BranchController::class, 'index'])->middleware('permission:branches.view');
         Route::post('/', [BranchController::class, 'store'])->middleware('permission:branches.create');
         Route::get('/{id}', [BranchController::class, 'show'])->middleware('permission:branches.view');
@@ -103,6 +104,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // Staff Management
     Route::prefix('staffs')->group(function () {
         Route::get('/', [\App\Http\Controllers\Api\StaffController::class, 'index'])->middleware('permission:staff.view');
+        Route::get('/by-role/{role}', [\App\Http\Controllers\Api\StaffController::class, 'byRole']); // Dropdown helper
         Route::post('/', [\App\Http\Controllers\Api\StaffController::class, 'store'])->middleware('permission:staff.create');
         Route::get('/{staff_id}', [\App\Http\Controllers\Api\StaffController::class, 'show'])->middleware('permission:staff.view');
         Route::put('/{staff_id}', [\App\Http\Controllers\Api\StaffController::class, 'update'])->middleware('permission:staff.edit');
